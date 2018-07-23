@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = {
-    USER: 'gorkamumu',
-    PASS: '18021989*G'
+    USER: 'gorka1',
+    PASS: '18021989*G',
+    MAX_RESULTS: 25
 }

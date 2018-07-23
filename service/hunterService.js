@@ -45,9 +45,9 @@ class HunterService {
      * @param result
      */
     printResults(result) {
-        if(this.config.printFormat === 'json') {
+        if(this.config.format === 'json') {
             console.log(result);
-        }else if(this.config.printFormat === 'csv') {
+        }else if(this.config.format === 'csv') {
             for(let i=0; i<result.length; i++) {
                 let item = result[i];
                 console.log(`${item.domain},${item.bl},${item.dp},${item.aby},${item.sg},${item.co},${item.cpc},${item.dropped},${item.status}`);
@@ -56,7 +56,7 @@ class HunterService {
             const table = new Table({
                 head: ['Domain', 'BL', 'DP', 'ABY', 'SG', 'CO', 'CPC', 'Dropped', 'Status'],
                 colWidths: [40, 5, 5, 10, 10, 15, 25, 25, 15]
-        });
+            });
 
             for(let i=0; i<result.length; i++) {
                 let item = result[i];
@@ -81,6 +81,8 @@ class HunterService {
                 url += `&start=${page}`;
             }
 
+            await this.sleep(3000);
+
             this.req.get({
                 'url': url
             }, (err, resp, body) => {
@@ -91,7 +93,7 @@ class HunterService {
 
                 results = [...results, ...this.parseTable(data)];
 
-                if(results.length === 44){
+                if(results.length === this.config.MAX_RESULTS){
                     resolve(results);
                 }else{
                     page +=25;
@@ -100,6 +102,11 @@ class HunterService {
             });
         });
     }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 
     /**
      * @returns {string}
@@ -155,8 +162,10 @@ class HunterService {
         let result = [];
         for(let i=0; i<data.length; i++) {
             let domain = data[0][i].substr(0, data[2][i]) + '.' + this.config.tld;
+            let condition = 'available' === data[20][i] &&
+                (typeof this.config.time !== 'undefined' && (data[19][0].indexOf(this.capitalize(this.config.time)) !== -1));
 
-            if('available' === data[20][i]) {
+            if(condition) {
                 result.push({
                     domain: domain,
                     bl: this.parseBL(data[3][i]),
@@ -172,6 +181,14 @@ class HunterService {
         }
 
         return result;
+    }
+
+    /**
+     * @param s
+     * @returns {*|string}
+     */
+    capitalize(s) {
+        return s && s[0].toUpperCase() + s.slice(1);
     }
 
     /**
