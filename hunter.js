@@ -9,21 +9,25 @@ let options = {};
 hunter.version('0.1.0')
     .option('-t, --tld <tld>', 'Search by TLD')
     .option('-o, --order <order>', 'Order by [bl,dp,aby,sg,co,cpc,dropped]')
-    .option('-om, --orderMode <orderMode>', 'Order Mode [asc, desc]')
     .option('-f, --format <format>', 'Print results in the specific format [json|csv]')
-    .option('-ti, --time <time>', 'Print dropped results [today|yesterday]')
+    .option('-to, --today', 'Print results for today')
     .parse(process.argv);
 
 if(hunter.tld || hunter.order || hunter.orderMode || hunter.format || hunter.time) {
     if(hunter.tld) options.tld = hunter.tld;
     if(hunter.order) options.order = hunter.order;
-    if(hunter.orderMode) options.orderMode = hunter.orderMode;
     if(hunter.format) options.printFormat = hunter.format.toLowerCase();
-    if(hunter.time) options.time = hunter.time.toLowerCase();
+    if(hunter.today) options.today = hunter.today;
 
-    new HunterService(options).get();
+    new HunterService(options).get().catch((err) => {
+        console.log(err.message);
+        process.exit(1);
+    });
 }else{
     prompt(questions).then(answers => {
         new HunterService(answers).get();
-    })
+    }).catch((err) => {
+        console.log(err.message);
+        process.exit(1);
+    });
 }
