@@ -3,7 +3,6 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const cheerioTableparser = require('cheerio-tableparser');
-const constants = require('../lib/constants');
 const baseconfig = require('../config/config');
 const Table = require('cli-table');
 const Assistant = require('../lib/assistant');
@@ -16,9 +15,7 @@ class HunterService {
     constructor(config) {
         this.config = {...baseconfig, ...config};
 
-        if(typeof this.config.tld === 'undefined' || this.config.tld === '') {
-            throw new Error('No TLD provded');
-        }
+        this.sanitizeConfig();
 
         this.assistant = new Assistant();
         this.assistant.setConfig(this.config);
@@ -28,6 +25,18 @@ class HunterService {
             rejectUnauthorized: false,
             followAllRedirects: true
         });
+
+        this.DOMAIN = 'https://member.expireddomains.net';
+    }
+
+    sanitizeConfig(){
+        if(typeof this.config.tld === 'undefined' || this.config.tld === '') {
+            throw new Error('No TLD provded');
+        }
+
+        if(typeof this.config.MAX_RESULTS === 'undefined' || this.config.MAX_RESULTS === '') {
+            this.config.MAX_RESULTS = 20;
+        }
     }
 
     /**
@@ -35,11 +44,11 @@ class HunterService {
      */
     async get() {
         if(this.config.SHOW_LOG){
-            console.log(`   \u221A Logging in ${constants.DOMAIN}/login/ with U: ${this.config.USER} - P: ${this.config.PASS}`);
+            console.log(`   \u221A Logging in ${this.DOMAIN}/login/ with U: ${this.config.USER} - P: ${this.config.PASS}`);
         }
 
         this.req.post({
-            url: `${constants.DOMAIN}/login/`,
+            url: `${this.DOMAIN}/login/`,
             formData: {
                 login: this.config.USER,
                 password: this.config.PASS,
@@ -92,6 +101,9 @@ class HunterService {
      * @param result
      */
     printResults(result) {
+
+        console.log(this.config.format, "---> FORMAT");
+
         if(this.config.format === 'json') {
             console.log(result);
         }else if(this.config.format === 'csv') {
@@ -122,12 +134,7 @@ class HunterService {
     async getResults(results = [], page = 0) {
         return new Promise(async (resolve, reject) => {
 
-            let url = '';
-            if(this.config.today) {
-                url = `${constants.DOMAIN}/domains/expired${this.config.tld}/?o=changes&r=d`;
-            }else{
-                url = `${constants.DOMAIN}/domains/expired${this.config.tld}/${this.assistant.getOrder()}`;
-            }
+            let url = `${this.DOMAIN}/domains/expired${this.config.tld}/${this.assistant.getOrder()}`;
 
             if(page !== 0){
                 url += `&start=${page}`;
@@ -168,10 +175,7 @@ class HunterService {
         for(let i=0; i<data.length; i++) {
             let domain = data[0][i].substr(0, data[2][i]) + '.' + this.config.tld;
 
-            if(
-                'available' === data[20][i] ||
-                ('available' === data[20][i] && this.config.today && data[19][1].indexOf('Today') !== -1)
-            ) {
+            if('available' === data[20][i]) {
                 result.push({
                     domain: domain,
                     bl: this.assistant.parseBL(data[3][i]),

@@ -4,7 +4,9 @@
   "description": "",
   "keywords": "",
   "preferGlobal": true,
-  "bin": "./hunter.js",
+  "bin": {
+    "hunter": "./hunter.js"
+  },
   "scripts": {
     "start": "node hunter.js",
     "test": "mocha test/test.js"
