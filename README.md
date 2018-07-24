@@ -1,6 +1,6 @@
 # 🤓 🤓 Hunter Expired Domains Finder
 
-![Serpaso SERP Rank Checker](https://i.imgur.com/p6gBWBE.jpg)
+![Hunter Expired Domains Finder ](https://i.imgur.com/QFHEk5X.png)
 
 A node cli program to check the latest dropped domains of expireddomains.net
 
@@ -30,7 +30,7 @@ Dev dependencies:
  - mocha: "*"
  
  
-And it will create the symbolic link to **/usr/local/bin**to can launch the binary globally. 
+And it will create the symbolic link to **/usr/local/bin** to be able to launch the binary globally. 
 
 After that, you can use the program like this
 ``` bash
@@ -43,24 +43,29 @@ $ hunter
 $ hunter
   ? Enter TLD: es
   ? Order by [bl|dp|aby|sg|co|cpc|dropped] cpc
-  ? Order mode [asc|desc] desc
-  ? Filter by time [today|yesterday] today
 ``` 
-![Interactive mode](https://i.imgur.com/8yP4wt7.jpg)
+![Interactive mode](https://i.imgur.com/85CEZoi.png)
 
 ### CLI based arguments mode
 ``` bash
-$ hunter --tld es --order cpc --orderMode desc --format json --time today
+$ hunter --tld es --order cpc --format csv
 ``` 
-![Arguments mode](https://i.imgur.com/y3O469H.jpg)
-![Arguments mode CSV output](https://i.imgur.com/94ABzAg.jpg)
+![Arguments mode](https://i.imgur.com/HgW9tG3.png)
 
-
+##### Arguments for this mode
+- **tld**: Specify the top level domain (es, com, de...)
+- **order**: Order by one of these fields [bl,dp,aby,sg,co,cpc,dropped] 
+- **format**: Print results in json or csv format
 
 The options specified in configuration file will be override by the arguments mode by default
 #### Config file options
-- **tld**: Specify the top level domain
-- **order**: Order by one of these fields [bl,dp,aby,sg,co,cpc,dropped] 
-- **orderMode**: Descending or Ascending ordenation mode
-- **format**: Print results in json or csv format
-- **time**: Get the dropped domains (today or yesterday)
+You should put in the config file (conf/config.js) the user and pass of your expireddomains account
+It should looks like this
+``` bash
+module.exports = {
+    USER: 'user',
+    PASS: 'user_pass',
+    MAX_RESULTS: 15,
+    SHOW_LOG: false
+}
+``` 

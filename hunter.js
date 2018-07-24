@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict';
+
 const hunter = require('commander');
 const { prompt } = require('inquirer');
 const HunterService = require('./service/hunterService');

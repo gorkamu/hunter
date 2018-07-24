@@ -101,9 +101,6 @@ class HunterService {
      * @param result
      */
     printResults(result) {
-
-        console.log(this.config.format, "---> FORMAT");
-
         if(this.config.format === 'json') {
             console.log(result);
         }else if(this.config.format === 'csv') {

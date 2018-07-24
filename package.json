@@ -1,8 +1,8 @@
 {
   "name": "hunter",
   "version": "1.0.0",
-  "description": "",
-  "keywords": "",
+  "description": "A node cli program to check the latest dropped domains of expireddomains.net",
+  "keywords": "expireddomains,expired domains,cli,node,command line interface,hunter",
   "preferGlobal": true,
   "bin": {
     "hunter": "./hunter.js"
