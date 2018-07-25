@@ -12,6 +12,7 @@ hunter.version('0.1.0')
     .option('-t, --tld <tld>', 'Search by TLD')
     .option('-o, --order <order>', 'Order by [bl,dp,aby,sg,co,cpc,dropped]')
     .option('-f, --format <format>', 'Print results in the specific format [json|csv]')
+    .option('-m, --mail', 'Send mail with results of a preconfigured search')
     .parse(process.argv);
 
 if(hunter.tld || hunter.order || hunter.orderMode || hunter.format || hunter.time) {
@@ -23,6 +24,14 @@ if(hunter.tld || hunter.order || hunter.orderMode || hunter.format || hunter.tim
         console.log(err.message);
         process.exit(1);
     });
+}else if(hunter.mail){
+    new HunterService({
+        tld: 'es',
+        order: 'cpc'
+    }).mail().catch((err) => {
+        console.log(err.message);
+        process.exit(1);
+    });
 }else{
     prompt(questions).then(answers => {
         new HunterService(answers).get();
@@ -31,3 +40,10 @@ if(hunter.tld || hunter.order || hunter.orderMode || hunter.format || hunter.tim
         process.exit(1);
     });
 }
+
+
+
+// 1- Peticion post a https://member.expireddomains.net/domains/expiredes/
+//  2- FormData:
+// fbl: 500     -- Backlinks minimos
+// fblm: 5500   -- Backlinks maximos

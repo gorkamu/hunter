@@ -65,6 +65,75 @@ class HunterService {
     }
 
     /**
+     * @returns {Promise<void>}
+     */
+    async mail() {
+        if(this.config.SHOW_LOG){
+            console.log(`   \u221A Logging in ${this.DOMAIN}/login/ with U: ${this.config.USER} - P: ${this.config.PASS}`);
+        }
+
+        this.req.post({
+            url: `${this.DOMAIN}/login/`,
+            formData: {
+                login: this.config.USER,
+                password: this.config.PASS,
+                redirect_2_url: '/'
+            }
+        }, async (err, body) => {
+            if (err) return console.error(err);
+
+            let [result] = await Promise.all([this.getMailResults()]);
+
+            result = this.prettifyResults(result);
+            this.printResults(result);
+        });
+    }
+
+    /**
+     * @param results
+     * @param page
+     * @returns {Promise<any>}
+     */
+    async getMailResults(results = [], page = 0) {
+        return new Promise(async (resolve, reject) => {
+
+            let url = `${this.DOMAIN}/domains/expired${this.config.tld}/`;
+
+            if(this.config.SHOW_LOG){
+                console.log(`   \u221A Getting ${url}`);
+            }
+
+            await this.assistant.sleep(3000);
+
+            this.req.post({
+                'url': url,
+                form: {
+                    fbl: 500,
+                    fblm: 5500
+                }
+            }, (err, resp, body) => {
+
+                console.log(body);
+
+                let $ = cheerio.load(body);
+
+                cheerioTableparser($);
+
+                let data = $(".base1 > tbody").parsetable(true, true, true);
+                results = [...results, ...this.parseTable(data)];
+
+                if(results.length >= this.config.MAX_RESULTS){
+                    resolve(results);
+                }else{
+                    page +=25;
+                    resolve(this.getMailResults(results, page));
+                }
+            });
+        });
+    }
+
+
+    /**
      * @param results
      * @returns {Array|*}
      */
